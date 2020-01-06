@@ -44,7 +44,6 @@ export class TerritoriesService {
   }
 
 
-  // TODO CHANGE THAT
   getTreeData(){
     return this.http.get<any[]>(environment.apiBaseUrl +  this.serviceBaseUrl + 'getTreeData');
   }
