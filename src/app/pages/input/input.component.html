@@ -1,0 +1,11 @@
+<form class="form"  >
+  <mat-form-field class="full-width" >
+    <input class='input' matInput placeholder="Code projet" [formControl]="formControl">
+    <mat-error class='error' *ngIf="formControl.hasError('required')">
+      Le code projet doit être renseigné.
+    </mat-error>
+    <mat-error class='error' *ngIf="formControl.hasError('pattern')">
+      Le code projet ne doit contenir uniquement lettres, chiffres, tiret bas et trait d’union.
+    </mat-error>
+  </mat-form-field>
+</form>

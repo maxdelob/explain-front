@@ -1,0 +1,10 @@
+
+<div class="title-container">
+    <div [ngClass]="{'title-error': isEmpty}" class='title'>{{type}}</div>
+</div>
+<div class="error-container" *ngIf='isEmpty'>Veuillez selectionner au moins une {{type | lowercase}}</div>
+<mat-list role="list">
+    <mat-list-item role="listitem" *ngFor="let elm of data" >
+        <mat-checkbox class="checkbox" [checked]="checklistSelection.isSelected(elm)" (change)="todoItemSelectionToggle(elm)">{{elm.name}}</mat-checkbox>
+    </mat-list-item>
+</mat-list>

@@ -1,43 +1,26 @@
 import {
-  Component,
-  OnInit,
-  ChangeDetectorRef
+  Component
 } from '@angular/core';
 import {
   MatTreeNestedDataSource
 } from '@angular/material/tree';
 import {
-  TreeControl,
   NestedTreeControl
 } from '@angular/cdk/tree';
 import {
   BehaviorSubject,
-  Observable,
   of as observableOf
 } from 'rxjs';
 import {
   TerritoriesService
 } from 'src/app/providers/territories.service';
-
-
-
 import {
   SelectionModel
 } from '@angular/cdk/collections';
-
-
-export class TerritoireNode {
-  id: string;
-  idLevel0: string;
-  idLevel1: string;
-  idLevel2: string;
-  idLevel3: string;
-  name: string;
-  level: number;
-  children: TerritoireNode[];
-  isToggled: boolean;
-  isExpended: boolean;
-}
+import {
+  Territoire
+} from '../../interfaces/territoire';
+import { SelectionHandlerService } from '../../providers/selection-handler.service';
 
 @Component({
   selector: 'app-tree-view',
@@ -47,17 +30,17 @@ export class TerritoireNode {
 export class TreeViewComponent {
   DEBUG = false;
 
-  nestedTreeControl: NestedTreeControl < TerritoireNode > ; // tree view control type
-  nestedDataSource: MatTreeNestedDataSource < TerritoireNode > ; // tree view Datasource type
+  nestedTreeControl: NestedTreeControl < Territoire > ; // tree view control type
+  nestedDataSource: MatTreeNestedDataSource < Territoire > ; // tree view Datasource type
+  datachange: BehaviorSubject < Territoire[] > = new BehaviorSubject([]); // control the tree view
+  selectionchange: BehaviorSubject < Territoire[] > = new BehaviorSubject([]); // control the checkboxes
+  checklistSelection = new SelectionModel < Territoire > (true /* multiple */ ); // control the checkboxes
+  selectionData: Territoire[] = [];
+  isEmpty = false; // check whenever the selectionData is empty (error message + disabled the configure button)
+  pritine = true;
+  lastNode;
 
-
-  datachange: BehaviorSubject < TerritoireNode[] > = new BehaviorSubject([]); // control the tree view
-  selectionchange: BehaviorSubject < TerritoireNode[] > = new BehaviorSubject([]); // control the checkboxes
-  checklistSelection = new SelectionModel < TerritoireNode > (true /* multiple */ ); // control the checkboxes
-  selectionData: TerritoireNode[] = [];
-
-
-  constructor(private territoriesService: TerritoriesService, private cdr: ChangeDetectorRef) {
+  constructor(private territoriesService: TerritoriesService, private selectionHandlerService: SelectionHandlerService) {
     this.nestedTreeControl = new NestedTreeControl(this._getChildren); // control the tree view
     this.nestedDataSource = new MatTreeNestedDataSource(); // control the tree view
 
@@ -71,27 +54,20 @@ export class TreeViewComponent {
     });
 
     this.selectionchange.subscribe(data => {
-      data.forEach(elm => {
-        // console.log(elm.isToggled)
-        if (elm.isToggled) {
-          this.selectionData.push(elm);
-        } else {
-          // console.log('remove ', elm.name);
-          this.selectionData.splice(this.selectionData.indexOf(elm), 1);
-        }
-      });
-      console.log(this.selectionData)
+      this.handleSelection(data);
+      if(this.pritine) { this.isEmpty = false; } // handle the Observable init
+      this.pritine = false;
     });
 
   }
 
-  // Function needed by Angular for NestedTreeControl to work
-  _getChildren = (node: TerritoireNode) => {
+  // Function needed by Angular Material for NestedTreeControl to work
+  _getChildren = (node: Territoire) => {
     return observableOf(node.children);
   }
 
   // Function needed by Angular to detected whenever there is a tree to expand
-  hasNestedChild = (_: number, nodeData: TerritoireNode) => {
+  hasNestedChild = (_: number, nodeData: Territoire) => {
     if (nodeData.children && nodeData.children.length > 0) {
       return true;
     } else {
@@ -101,24 +77,19 @@ export class TreeViewComponent {
 
   // Function launch when EPCI or Commune are selected to get the slice of data needed
   loadMoreChildren(node) {
-    if (!node.isExpended) {
-      // console.log(this.datachange.value)
+    if (!node.isExpended) { // avoid bug when reopening parent
       this.territoriesService.getTree(node.id, parseInt(node.level) + 1).subscribe(res => {
         const data = this.addChildrenToParent(node, res);
+        node.isExpended = !node.isExpended;
         this.datachange.next([]); // force to recreate (material bug)
         this.datachange.next(data);
-        // this.initCheckboxes();
+        this.initCheckboxes();
       });
-      node.isExpended = !node.isExpended;
-    } else {
-      // console.log(this.datachange.value)
-      //this.initCheckboxes()
-      // console.log('lol')
     }
   }
 
   // Function which add a node to the tree
-  addChildrenToParent(node, children): TerritoireNode[] {
+  addChildrenToParent(node, children): Territoire[] {
     let regionChanged;
     this.datachange.value.forEach(pays => {
       pays.children.forEach(region => {
@@ -184,6 +155,7 @@ export class TreeViewComponent {
   initCheckboxes() {
     this.checkBoxes(this.datachange.value);
     this.datachange.value.forEach((pays) => {
+      this.checkBoxes(pays.children);
       pays.children.forEach((region) => {
         if (region.children.length > 0) {
           this.checkBoxes(region.children);
@@ -203,14 +175,14 @@ export class TreeViewComponent {
   }
 
   // Function that toggle all checkbox of a node
-  checkBoxes(list: TerritoireNode[]) {
+  checkBoxes(list: Territoire[]) {
     list.forEach((elm) => {
       elm.isToggled ? this.checklistSelection.select(elm) : this.checklistSelection.deselect(elm);
     });
   }
 
   // Launch when clicked on a checkbox
-  todoItemSelectionToggle(node: TerritoireNode): void {
+  todoItemSelectionToggle(node: Territoire): void {
     const closedDescendants = this.nestedTreeControl.getDescendants(node).filter(elm => elm.level === node.level + 1);
     if (closedDescendants.length === 0 && node.level !== 3) { // when we did not load data and we select it
       this.territoriesService.getTree(node.id, node.level + 1).subscribe(res => {
@@ -234,15 +206,17 @@ export class TreeViewComponent {
         element.isToggled = !element.isToggled;
       });
       this.selectionchange.next([node]);
-      this.selectionchange.next(closedDescendants);
+      if(node.level !== 3) {this.selectionchange.next(closedDescendants)};
+      node.isExpended = !node.isExpended;
     }
 
+    this.lastNode = node;
   }
 
 
   unSelectAllBoxes() {
-
     this.datachange.value.forEach((pays) => {
+      pays.isToggled = false;
       pays.children.forEach((region) => {
         region.isToggled = false;
         region.children.forEach(dep => {
@@ -258,54 +232,88 @@ export class TreeViewComponent {
             });
           }
         });
-      })
+      });
     });
-    this.initCheckboxes();
-    const init = this.datachange.value;
-    this.datachange.next([]);
-    this.datachange.next(init);
-    this.selectionchange.next([]);
+
+    const data = this.datachange.value;
+    this.datachange.next([]); //force recreate
+    this.datachange.next(data); 
+    this.initCheckboxes(); // uncheck boxes
+    this.checklistSelection.deselect(...this.datachange.value); // bug with region selected (force uncheck)
+    this.selectionchange.next([]); // embpty selection
+    this.isEmpty = true; // handle error message
+    this.selectionHandlerService.setTreeError(this.isEmpty);
+    this.selectionHandlerService.getTreeEvent().next(this.selectionData);
+   
+  }
+
+  handleSelection(data) {
+    data.forEach(elm => {
+      elm.isToggled ? this.selectionData.push(elm) : this.selectionData.splice(this.selectionData.indexOf(elm), 1);
+    });
+    // this.removeParent(data);
+    this.selectionData.length > 0 ? this.isEmpty = false : this.isEmpty = true;
+
+    this.selectionHandlerService.setTreeError(this.isEmpty);
+    this.selectionHandlerService.getTreeEvent().next(this.selectionData);
+
   }
 
 
-  // getParentNode(node: TerritoireNode): TerritoireNode | null {
-  //   let region, dep;
-  //   let nodeFind = null;
-  //   switch (node.level) {
-  //     case 0:
-  //       return null // region
-  //     case 1: // dep
-  //       nodeFind = this.datachange.value.filter((elm) => {
-  //         return elm.id === node["idLevel0"]
-  //       })[0];
-  //       break;
-  //     case 2: // epci
-  //       console.log('here');
-  //       region = this.datachange.value.filter((elm) => {
-  //         return elm.id === node["idLevel0"]
-  //       })[0];
-  //       nodeFind = region.children.filter(elm => {
-  //         return elm.id === node["idLevel1"]
-  //       })[0];
-  //       break;
-  //     case 3: // commune
+  // remove parent node for list selection if present
+  removeParent(data) {
+    const parents = [];
+    data.forEach(elm => {
+      if (this.getParentNode(elm)) {
+        parents.push(this.getParentNode(elm));
+      }
+    });
+    const parentsUnique = new Set(parents); // avoid duplicates
+    parentsUnique.forEach(elm => {
+      this.selectionData.splice(this.selectionData.indexOf(elm), 1);
+    });
 
-  //       region = this.datachange.value.filter((elm) => {
-  //         return elm.id === node["idLevel0"]
-  //       })[0];
-  //       dep = region.children.filter(elm => {
-  //         return elm.id === node["idLevel1"]
-  //       })[0];
-  //       console.log(dep);
-  //       nodeFind = dep.children.filter(elm => {
-  //         return elm.id === node["idLevel2"]
-  //       })[0];
-  //   }
-  //   return nodeFind;
-  // }
-
-
-  test() {
-    console.log()
   }
+
+
+  // find parent node
+  getParentNode(node: Territoire): Territoire | null {
+    let region, dep;
+    let nodeFind = null;
+    let pays = this.datachange.value[0];
+    if (pays) {
+      const data = pays.children;
+      switch (node.level) {
+        case 0:
+          return null // region
+        case 1: // dep
+          nodeFind = data.filter((elm) => {
+            return elm.id === node["idLevel0"]
+          })[0];
+          break;
+        case 2: // epci
+          region = data.filter((elm) => {
+            return elm.id === node["idLevel0"]
+          })[0];
+          nodeFind = region.children.filter(elm => {
+            return elm.id === node["idLevel1"]
+          })[0];
+          break;
+        case 3: // commune
+          region = data.filter((elm) => {
+            return elm.id === node["idLevel0"]
+          })[0];
+          dep = region.children.filter(elm => {
+            return elm.id === node["idLevel1"]
+          })[0];
+          nodeFind = dep.children.filter(elm => {
+            return elm.id === node["idLevel2"]
+          })[0];
+      }
+
+    }
+
+    return nodeFind;
+  }
+
 }

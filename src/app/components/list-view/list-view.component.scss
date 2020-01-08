@@ -1,0 +1,14 @@
+@import "../../../variables.scss";
+
+
+.title-container{
+    width: 100%; height: 35px;text-align: center;
+}
+.title{
+    padding-top: 10px; font-size: 20px; white-space: nowrap; font-family: $font_family; 
+    color:$primary_color;
+}
+
+.checkbox {
+    font-size: 14px;
+}

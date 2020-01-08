@@ -1,0 +1,10 @@
+@import "../../../variables.scss";
+
+.button-container{
+  height: 55px; width:100%; background: $primary_color;
+}
+
+.boutton {
+   background: $secondary_color;
+   margin-top:7px; margin-right: 20px; float:right;
+}

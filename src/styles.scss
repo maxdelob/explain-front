@@ -1,6 +1,22 @@
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
-// @import "~bootstrap/scss/bootstrap";
+@import '~@angular/material/prebuilt-themes/pink-bluegrey.css';
+@import "variables";
 
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: $font_family; background: $background-second-color;}
+
+.mat-form-field{
+   background:$background-color;
+}
+
+.title-error {
+   color:$error_color;
+}
+.error-container {
+   margin-top:5px;
+   text-align:center;
+   width: 100%;
+   height: 25px;
+   color: $error_color;
+   font-size: 75%;
+}

@@ -1,10 +1,26 @@
-.example-tree-invisible {
-    display: none;
-  }
-  
-  .example-tree ul,
-  .example-tree li {
-    margin-top: 0;
-    margin-bottom: 0;
-    list-style-type: none;
-  }
+
+@import "../../../variables.scss";
+
+.logo {
+  width: 110px; height: 50px;
+}
+.panel-icon{
+  width: 100%; height: 90px;
+}
+.panel-container{
+  width: 100%; height: calc(100% - 215px);
+}
+.panel {
+  width:25%; float: left; max-height: 100%; overflow: auto; background: $background_color; 
+}
+
+.panel-tree{
+  width: 50%; background: $background-second-color;
+}
+.panel-input{
+  width: 100%; height: 75px;
+}
+
+.panel-button{
+  width:100%; height: 60px; background: $primary_color;
+}

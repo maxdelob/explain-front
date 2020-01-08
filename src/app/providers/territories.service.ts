@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Administrative } from '../interfaces/administrative';
-import { Observable } from 'rxjs';
 
 
 
@@ -11,37 +9,37 @@ import { Observable } from 'rxjs';
 })
 export class TerritoriesService {
   constructor(private http: HttpClient) { }
-  hashMatrixAdm = new Map<number, Map<string, string>>(); // key level value hashmap of admin level
-  hashDepartement = new Map<string, string>(); // key name value id (retrieve and id from a name)
-  hashEpci = new Map<string, string>(); // key name value id (retrieve and id from a name)
-  hashCommune = new Map<string, string>(); // key name value id (retrieve and id from a name) 
+  // hashMatrixAdm = new Map<number, Map<string, string>>(); // key level value hashmap of admin level
+  // hashDepartement = new Map<string, string>(); // key name value id (retrieve and id from a name)
+  // hashEpci = new Map<string, string>(); // key name value id (retrieve and id from a name)
+  // hashCommune = new Map<string, string>(); // key name value id (retrieve and id from a name) 
   serviceBaseUrl = '/territories/';
 
-  getDepartements() {
-    return this.http.get<Administrative[]>(environment.apiBaseUrl + this.serviceBaseUrl + 'departements');
-  }
+  // getDepartements() {
+  //   return this.http.get<Administrative[]>(environment.apiBaseUrl + this.serviceBaseUrl + 'departements');
+  // }
 
-  setDepartementHashMap(departements: Administrative[]) {
-    departements.forEach(elm => this.hashDepartement.set(elm.name, elm.id));
-    this.hashMatrixAdm.set(0, this.hashDepartement);
-  }
+  // setDepartementHashMap(departements: Administrative[]) {
+  //   departements.forEach(elm => this.hashDepartement.set(elm.name, elm.id));
+  //   this.hashMatrixAdm.set(0, this.hashDepartement);
+  // }
 
-  getEpci() {
-    return this.http.get<Administrative[]>(environment.apiBaseUrl + this.serviceBaseUrl + 'epcis');
-  }
-  setEpciHashMap(epci: Administrative[]) {
-    epci.forEach(elm => this.hashEpci.set(elm.name, elm.id));
-    this.hashMatrixAdm.set(1, this.hashEpci);
-  }
+  // getEpci() {
+  //   return this.http.get<Administrative[]>(environment.apiBaseUrl + this.serviceBaseUrl + 'epcis');
+  // }
+  // setEpciHashMap(epci: Administrative[]) {
+  //   epci.forEach(elm => this.hashEpci.set(elm.name, elm.id));
+  //   this.hashMatrixAdm.set(1, this.hashEpci);
+  // }
 
 
-  findByName(body){
-    return this.http.post(environment.apiBaseUrl + this.serviceBaseUrl + 'findByName', body);
-  }
+  // findByName(body){
+  //   return this.http.post(environment.apiBaseUrl + this.serviceBaseUrl + 'findByName', body);
+  // }
   
-  getMatrixAdm(level) {
-    return this.hashMatrixAdm.get(level);
-  }
+  // getMatrixAdm(level) {
+  //   return this.hashMatrixAdm.get(level);
+  // }
 
 
   getTreeData(){

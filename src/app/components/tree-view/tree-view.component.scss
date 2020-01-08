@@ -1,10 +1,24 @@
 
+@import "../../../variables.scss";
+
+.title-container{
+    width: 100%; height: 50px;text-align: center;
+}
+.title{
+    padding-top: 10px; font-size: 20px; white-space: nowrap; font-family: $font_family; color:$primary_color;
+}
+
+
 .container-button-unselect{
-    width: 100%;
+    width: 100%; text-align: center;
 }
 
 .button-unselect{
     float: right;
+}
+
+.tree {
+    background: $background-second-color;
 }
 
 .tree-invisible {
