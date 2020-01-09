@@ -1,6 +1,16 @@
 # EXplainFront
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.21.
+Project pour interview full stack pour eXplain
+
+
+## Pour deployer localement
+
+ `git clone`
+  `npm i`
+  `ng serve`
+
+
+
 
 ## Development server
 
