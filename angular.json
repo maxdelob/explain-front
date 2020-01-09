@@ -95,7 +95,6 @@
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
-              "node_modules/bootstrap/dist/scss/bootstrap.min.scss",
               "src/styles.scss"
             ],
             "scripts": []

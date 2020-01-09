@@ -1,26 +1,12 @@
-import {
-  Component
-} from '@angular/core';
-import {
-  MatTreeNestedDataSource
-} from '@angular/material/tree';
-import {
-  NestedTreeControl
-} from '@angular/cdk/tree';
-import {
-  BehaviorSubject,
-  of as observableOf
-} from 'rxjs';
-import {
-  TerritoriesService
-} from 'src/app/providers/territories.service';
-import {
-  SelectionModel
-} from '@angular/cdk/collections';
-import {
-  Territoire
-} from '../../interfaces/territoire';
+import { Component } from '@angular/core';
+import {  MatTreeNestedDataSource } from '@angular/material/tree';
+import { NestedTreeControl } from '@angular/cdk/tree';
+import {  BehaviorSubject, of as observableOf } from 'rxjs';
+import { TerritoriesService } from 'src/app/providers/territories.service';
+import { SelectionModel} from '@angular/cdk/collections';
+import { Territoire } from '../../interfaces/territoire';
 import { SelectionHandlerService } from '../../providers/selection-handler.service';
+
 
 @Component({
   selector: 'app-tree-view',
@@ -29,7 +15,6 @@ import { SelectionHandlerService } from '../../providers/selection-handler.servi
 })
 export class TreeViewComponent {
   DEBUG = false;
-
   nestedTreeControl: NestedTreeControl < Territoire > ; // tree view control type
   nestedDataSource: MatTreeNestedDataSource < Territoire > ; // tree view Datasource type
   datachange: BehaviorSubject < Territoire[] > = new BehaviorSubject([]); // control the tree view
@@ -38,7 +23,7 @@ export class TreeViewComponent {
   selectionData: Territoire[] = [];
   isEmpty = false; // check whenever the selectionData is empty (error message + disabled the configure button)
   pritine = true;
-  lastNode;
+  selectedData;
 
   constructor(private territoriesService: TerritoriesService, private selectionHandlerService: SelectionHandlerService) {
     this.nestedTreeControl = new NestedTreeControl(this._getChildren); // control the tree view
@@ -68,11 +53,7 @@ export class TreeViewComponent {
 
   // Function needed by Angular to detected whenever there is a tree to expand
   hasNestedChild = (_: number, nodeData: Territoire) => {
-    if (nodeData.children && nodeData.children.length > 0) {
-      return true;
-    } else {
-      false;
-    }
+    nodeData.children && nodeData.children.length > 0 ?  true : false;
   }
 
   // Function launch when EPCI or Commune are selected to get the slice of data needed
@@ -135,7 +116,7 @@ export class TreeViewComponent {
           regionChanged = region;
         }
       });
-    })
+    });
 
     // parse the data correctly
     const parsedData = []
@@ -209,8 +190,6 @@ export class TreeViewComponent {
       if(node.level !== 3) {this.selectionchange.next(closedDescendants)};
       node.isExpended = !node.isExpended;
     }
-
-    this.lastNode = node;
   }
 
 
@@ -251,7 +230,8 @@ export class TreeViewComponent {
     data.forEach(elm => {
       elm.isToggled ? this.selectionData.push(elm) : this.selectionData.splice(this.selectionData.indexOf(elm), 1);
     });
-    // this.removeParent(data);
+
+    this.removeParent(data);
     this.selectionData.length > 0 ? this.isEmpty = false : this.isEmpty = true;
 
     this.selectionHandlerService.setTreeError(this.isEmpty);
@@ -272,7 +252,6 @@ export class TreeViewComponent {
     parentsUnique.forEach(elm => {
       this.selectionData.splice(this.selectionData.indexOf(elm), 1);
     });
-
   }
 
 
@@ -284,8 +263,10 @@ export class TreeViewComponent {
     if (pays) {
       const data = pays.children;
       switch (node.level) {
+        case -1:
+          return null;
         case 0:
-          return null // region
+          return pays;
         case 1: // dep
           nodeFind = data.filter((elm) => {
             return elm.id === node["idLevel0"]
