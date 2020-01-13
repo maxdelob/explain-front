@@ -22,12 +22,12 @@ export class ListViewComponent {
     this.addRemoveItemToList(val);
     this.listElementSelect.length > 0 ? this.isEmpty = false : this.isEmpty = true;
     this.selectionHandlerService.setListError(this.listElementSelect.length === 0 ? true : false, this.type);
-    this.selectionHandlerService.getListEvent().next([this.listElementSelect, this.type]);  
+    this.selectionHandlerService.getListEvent().next([this.listElementSelect, this.type]);
   }
 
 
   addRemoveItemToList(val) {
-    if(this.listElementSelect.includes(val) || !val) {
+    if (this.listElementSelect.includes(val) || !val) {
       this.listElementSelect.splice( this.listElementSelect.indexOf(val), 1 );
     } else {
       this.listElementSelect.push(val);

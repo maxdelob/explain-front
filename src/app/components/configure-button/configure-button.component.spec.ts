@@ -58,7 +58,7 @@ describe('ConfigureButtonComponent', () => {
   });
 
   it('export should call exportDocument with an object correctly mapped', () => {
-    const spy = spyOn(component, 'exportDocument').and.callThrough();
+    const spy = spyOn(component, 'exportDocument');
     const test: ListElement = {id : 'test', name : 'test'};
     component.projectName = 'test';
     component.listSourceSelected = [test];

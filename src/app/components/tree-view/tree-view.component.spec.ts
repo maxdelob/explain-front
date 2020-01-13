@@ -1,46 +1,16 @@
-import {
-  async,
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
-import {
-  TreeViewComponent
-} from './tree-view.component';
-import {
-  TerritoriesService
-} from '../../providers/territories.service';
-import {
-  SelectionHandlerService
-} from '../../providers/selection-handler.service';
-import {
-  MatTreeModule
-} from '@angular/material/tree';
-import {
-  MatIconModule
-} from '@angular/material/icon';
-import {
-  of as observableOf
-} from 'rxjs';
-import {
-  MatButtonModule
-} from '@angular/material/button';
-import {
-  MatCheckboxModule
-} from '@angular/material/checkbox';
-import {
-  HttpClientTestingModule
-} from '@angular/common/http/testing';
-import {
-  children
-} from '../../../assets/mock_child_data_test';
-import {
-  departements
-} from '../../../assets/departements_mock';
-import {
-  bretagne
-} from '../../../assets/bretage_mock';
-
-
+import { async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { TreeViewComponent } from './tree-view.component';
+import { TerritoriesService } from '../../providers/territories.service';
+import { SelectionHandlerService } from '../../providers/selection-handler.service';
+import {  MatTreeModule } from '@angular/material/tree';
+import {  MatIconModule } from '@angular/material/icon';
+import { of as observableOf } from 'rxjs';
+import {  MatButtonModule } from '@angular/material/button';
+import {  MatCheckboxModule } from '@angular/material/checkbox';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { children } from '../../../assets/mock_child_data_test';
+import { departements } from '../../../assets/departements_mock';
+import { bretagne } from '../../../assets/bretage_mock';
 
 describe('all functionalities of TreeViewComponent should be working', () => {
   let component: TreeViewComponent;
