@@ -16,7 +16,7 @@ import { stringify } from 'querystring';
   templateUrl: './configure-button.component.html',
   styleUrls: ['./configure-button.component.scss']
 })
-export class ConfigureButtonComponent implements OnInit {
+export class ConfigureButtonComponent {
   TYPE_THEME = 'Themes';
   TYPE_SOURCE = 'Sources';
   listThemeSelected: ListElement[] = [];
@@ -59,11 +59,7 @@ export class ConfigureButtonComponent implements OnInit {
   }
 
 
-ngOnInit(){
- 
-}
-
-isButtonDisabled(){
+isButtonDisabled() {
   !this.isSourceError && !this.isThemeError && !this.isProjectNameError && !this.isTreeError ?
    this.disableButton = false : this.disableButton = true;
 }

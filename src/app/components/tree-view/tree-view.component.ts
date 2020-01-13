@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import {  MatTreeNestedDataSource } from '@angular/material/tree';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import {  BehaviorSubject, of as observableOf } from 'rxjs';
+import {  BehaviorSubject, of as observableOf, Observable } from 'rxjs';
 import { TerritoriesService } from 'src/app/providers/territories.service';
 import { SelectionModel} from '@angular/cdk/collections';
 import { Territoire } from '../../interfaces/territoire';
@@ -17,7 +17,8 @@ export class TreeViewComponent {
   DEBUG = false;
   nestedTreeControl: NestedTreeControl < Territoire > ; // tree view control type
   nestedDataSource: MatTreeNestedDataSource < Territoire > ; // tree view Datasource type
-  datachange: BehaviorSubject < Territoire[] > = new BehaviorSubject([]); // control the tree view
+  datachange = new Observable(observer => this.datachange = observer);
+  nodesSelected: Territoire[] = [];
   selectionchange: BehaviorSubject < Territoire[] > = new BehaviorSubject([]); // control the checkboxes
   checklistSelection = new SelectionModel < Territoire > (true /* multiple */ ); // control the checkboxes
   selectionData: Territoire[] = [];
@@ -30,12 +31,14 @@ export class TreeViewComponent {
     this.nestedDataSource = new MatTreeNestedDataSource(); // control the tree view
 
     this.datachange.subscribe(data => {
+      this.nodesSelected = data;
       this.nestedDataSource.data = data;
     });
 
     this.territoriesService.initTree().subscribe(data => {
+      this.datachange.next([]);
       this.datachange.next(data);
-      this.nestedTreeControl.expand(this.datachange.value[0]);
+      this.nestedTreeControl.expand(this.nodesSelected[0]);
     });
 
     this.selectionchange.subscribe(data => {
@@ -53,7 +56,11 @@ export class TreeViewComponent {
 
   // Function needed by Angular to detected whenever there is a tree to expand
   hasNestedChild = (_: number, nodeData: Territoire) => {
-    nodeData.children && nodeData.children.length > 0 ?  true : false;
+    if (nodeData.children && nodeData.children.length > 0) {
+      return true;
+    } else {
+      false;
+    }
   }
 
   // Function launch when EPCI or Commune are selected to get the slice of data needed
@@ -62,80 +69,16 @@ export class TreeViewComponent {
       this.territoriesService.getTree(node.id, parseInt(node.level) + 1).subscribe(res => {
         const data = this.addChildrenToParent(node, res);
         node.isExpended = !node.isExpended;
-        this.datachange.next([]); // force to recreate (material bug)
+        this.datachange.next([]);
         this.datachange.next(data);
         this.initCheckboxes();
       });
     }
   }
-
-  // Function which add a node to the tree
-  addChildrenToParent(node, children): Territoire[] {
-    let regionChanged;
-    this.datachange.value.forEach(pays => {
-      pays.children.forEach(region => {
-        const listDepartement = [];
-        if (region.id === node["idLevel0"]) {
-          if (this.DEBUG) {
-            console.log('join region ', region.id);
-          }
-          region.children.forEach(departement => {
-            if (departement.id == node['idLevel1']) {
-              if (this.DEBUG) {
-                console.log('join dep ', departement.id);
-              }
-              if (node.level == 1) {
-                departement.children = children;
-                listDepartement.push(departement);
-              } else {
-                const listEpci = [];
-                if (departement.id == node['idLevel1']) {
-                  if (this.DEBUG) {
-                    console.log('join dep  ', departement.id);
-                  }
-                  departement.children.forEach(epci => {
-                    if (epci.id == children[0].idLevel2) {
-                      if (this.DEBUG) {
-                        console.log('join epci  ', epci.id);
-                      }
-                      epci.children = children;
-                      listEpci.push(epci);
-                    } else {
-                      listEpci.push(epci);
-                    }
-                  });
-                  departement.children = listEpci;
-                  listDepartement.push(departement);
-                }
-              }
-            } else {
-              listDepartement.push(departement);
-            }
-          });
-          region.children = listDepartement;
-          regionChanged = region;
-        }
-      });
-    });
-
-    // parse the data correctly
-    const parsedData = []
-    this.datachange.value.forEach(region => {
-      if (region.id == node["idLevel0"]) {
-        parsedData.push(regionChanged)
-      } else {
-        parsedData.push(region);
-      }
-    });
-
-    return parsedData;
-
-  }
-
   // Function that sets the correct value of the checkboxes (toggle or not)
   initCheckboxes() {
-    this.checkBoxes(this.datachange.value);
-    this.datachange.value.forEach((pays) => {
+    this.checkBoxes(this.nodesSelected);
+    this.nodesSelected.forEach((pays) => {
       this.checkBoxes(pays.children);
       pays.children.forEach((region) => {
         if (region.children.length > 0) {
@@ -168,7 +111,7 @@ export class TreeViewComponent {
     if (closedDescendants.length === 0 && node.level !== 3) { // when we did not load data and we select it
       this.territoriesService.getTree(node.id, node.level + 1).subscribe(res => {
         const data = this.addChildrenToParent(node, res);
-        this.datachange.next([]); // force to recreate (material bug)
+        this.datachange.next([]);
         this.datachange.next(data);
         this.checklistSelection.select(node);
         res.forEach(elm => {
@@ -194,7 +137,7 @@ export class TreeViewComponent {
 
 
   unSelectAllBoxes() {
-    this.datachange.value.forEach((pays) => {
+    this.nodesSelected.forEach((pays) => {
       pays.isToggled = false;
       pays.children.forEach((region) => {
         region.isToggled = false;
@@ -214,12 +157,12 @@ export class TreeViewComponent {
       });
     });
 
-    const data = this.datachange.value;
-    this.datachange.next([]); //force recreate
-    this.datachange.next(data); 
+    const data = this.nodesSelected;
+    this.datachange.next([]);
+    this.datachange.next(data);
     this.initCheckboxes(); // uncheck boxes
-    this.checklistSelection.deselect(...this.datachange.value); // bug with region selected (force uncheck)
-    this.selectionchange.next([]); // embpty selection
+    this.checklistSelection.deselect(...this.nodesSelected); // bug with region selected (force uncheck)
+    this.selectionchange.next([]); // empty selection
     this.isEmpty = true; // handle error message
     this.selectionHandlerService.setTreeError(this.isEmpty);
     this.selectionHandlerService.getTreeEvent().next(this.selectionData);
@@ -259,7 +202,7 @@ export class TreeViewComponent {
   getParentNode(node: Territoire): Territoire | null {
     let region, dep;
     let nodeFind = null;
-    let pays = this.datachange.value[0];
+    let pays =this.nodesSelected[0];
     if (pays) {
       const data = pays.children;
       switch (node.level) {
@@ -296,5 +239,69 @@ export class TreeViewComponent {
 
     return nodeFind;
   }
+
+ // Function which add a node to the tree
+ addChildrenToParent(node, children): Territoire[] {
+  let regionChanged;
+  this.nodesSelected.forEach(pays => {
+    pays.children.forEach(region => {
+      const listDepartement = [];
+      if (region.id === node["idLevel0"]) {
+        if (this.DEBUG) {
+          console.log('join region ', region.id);
+        }
+        region.children.forEach(departement => {
+          if (departement.id == node['idLevel1']) {
+            if (this.DEBUG) {
+              console.log('join dep ', departement.id);
+            }
+            if (node.level == 1) {
+              departement.children = children;
+              listDepartement.push(departement);
+            } else {
+              const listEpci = [];
+              if (departement.id == node['idLevel1']) {
+                if (this.DEBUG) {
+                  console.log('join dep  ', departement.id);
+                }
+                departement.children.forEach(epci => {
+                  if (epci.id == children[0].idLevel2) {
+                    if (this.DEBUG) {
+                      console.log('join epci  ', epci.id);
+                    }
+                    epci.children = children;
+                    listEpci.push(epci);
+                  } else {
+                    listEpci.push(epci);
+                  }
+                });
+                departement.children = listEpci;
+                listDepartement.push(departement);
+              }
+            }
+          } else {
+            listDepartement.push(departement);
+          }
+        });
+        region.children = listDepartement;
+        regionChanged = region;
+      }
+    });
+  });
+
+  // parse the data correctly
+  const parsedData = []
+  this.nodesSelected.forEach(region => {
+    if (region.id == node["idLevel0"]) {
+      parsedData.push(regionChanged)
+    } else {
+      parsedData.push(region);
+    }
+  });
+
+  return parsedData;
+
+}
+
 
 }
