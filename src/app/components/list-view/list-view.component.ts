@@ -21,8 +21,8 @@ export class ListViewComponent {
   todoItemSelectionToggle(val: ListElement) {
     this.addRemoveItemToList(val);
     this.listElementSelect.length > 0 ? this.isEmpty = false : this.isEmpty = true;
-    this.selectionHandlerService.getListEvent().next([this.listElementSelect, this.type]);
-    this.selectionHandlerService.setListError(!this.isEmpty, this.type);
+    this.selectionHandlerService.setListError(this.listElementSelect.length === 0 ? true : false, this.type);
+    this.selectionHandlerService.getListEvent().next([this.listElementSelect, this.type]);  
   }
 
 
