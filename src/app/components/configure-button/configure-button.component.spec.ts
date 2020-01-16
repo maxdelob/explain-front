@@ -34,9 +34,11 @@ describe('ConfigureButtonComponent', () => {
     component.isTreeError = false;
     component.isButtonDisabled();
     expect(component.disableButton).toBeFalsy();
+    component.isSourceError = true;
     component.isButtonDisabled();
     expect(component.disableButton).toBeTruthy();
   });
+
   it('export should call exportDocument', () => {
     const spy = spyOn(component, 'exportDocument');
     component.export();

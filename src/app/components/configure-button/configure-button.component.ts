@@ -70,10 +70,14 @@ export class ConfigureButtonComponent {
 
 
   isButtonDisabled() {
-    !this.isSourceError && !this.isThemeError && !this.isProjectNameError && !this.isTreeError ?
-      this.disableButton = false : this.disableButton = true;
-   }
-  export() {
+    if (this.isSourceError || this.isThemeError || this.isProjectNameError || this.isTreeError) {
+      this.disableButton = true;
+    } else {
+      this.disableButton = false;
+    }
+  }
+
+  export () {
     const obj = {
       project_code: this.projectName,
       territories: this.listTerritories.map(elm => elm.pcode),

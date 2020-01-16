@@ -59,7 +59,7 @@ export class TreeViewComponent {
     if (nodeData.children && nodeData.children.length > 0) {
       return true;
     } else {
-      false;
+      return false;
     }
   }
 
