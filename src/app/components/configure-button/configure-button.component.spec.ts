@@ -27,24 +27,16 @@ describe('ConfigureButtonComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('isButtonDisabled should activate the button if there is no error', () => {
+  it('isButtonDisabled should activate/deactivate the button if there is no error', () => {
     component.isSourceError = false;
     component.isThemeError = false;
     component.isProjectNameError = false;
     component.isTreeError = false;
     component.isButtonDisabled();
     expect(component.disableButton).toBeFalsy();
-  });
-
-  it('isButtonDisabled should disable the button if there is at least one error', () => {
-    component.isSourceError = false;
-    component.isThemeError = false;
-    component.isProjectNameError = true;
-    component.isTreeError = false;
     component.isButtonDisabled();
     expect(component.disableButton).toBeTruthy();
   });
-
   it('export should call exportDocument', () => {
     const spy = spyOn(component, 'exportDocument');
     component.export();
