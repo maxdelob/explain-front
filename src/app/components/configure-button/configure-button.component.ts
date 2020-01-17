@@ -78,6 +78,8 @@ export class ConfigureButtonComponent {
   }
 
   export () {
+
+    console.log(this.listTerritories);
     const obj = {
       project_code: this.projectName,
       territories: this.listTerritories.map(elm => elm.pcode),
