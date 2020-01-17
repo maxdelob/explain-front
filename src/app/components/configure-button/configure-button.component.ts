@@ -1,5 +1,8 @@
 import {
-  Component, OnInit, ChangeDetectorRef, Input
+  Component,
+  OnInit,
+  ChangeDetectorRef,
+  Input
 } from '@angular/core';
 import {
   SelectionHandlerService
@@ -7,16 +10,23 @@ import {
 import {
   ListElement
 } from 'src/app/interfaces/list-element';
-import { FormControl, Validators } from '@angular/forms';
-import { Territoire } from 'src/app/interfaces/territoire';
-import { stringify } from 'querystring';
+import {
+  FormControl,
+  Validators
+} from '@angular/forms';
+import {
+  Territoire
+} from 'src/app/interfaces/territoire';
+import {
+  stringify
+} from 'querystring';
 
 @Component({
   selector: 'app-configure-button',
   templateUrl: './configure-button.component.html',
   styleUrls: ['./configure-button.component.scss']
 })
-export class ConfigureButtonComponent implements OnInit {
+export class ConfigureButtonComponent {
   TYPE_THEME = 'Themes';
   TYPE_SOURCE = 'Sources';
   listThemeSelected: ListElement[] = [];
@@ -29,7 +39,7 @@ export class ConfigureButtonComponent implements OnInit {
   isSourceError = true;
   isTreeError = true;
   constructor(private selectionHandlerService: SelectionHandlerService, private cd: ChangeDetectorRef) {
-  
+
     this.selectionHandlerService.getListEvent().subscribe((val) => {
       switch (val[1]) {
         case this.TYPE_THEME:
@@ -52,27 +62,29 @@ export class ConfigureButtonComponent implements OnInit {
     });
 
     this.selectionHandlerService.getTreeEvent().subscribe((val) => {
-     this.listTerritories = val;
-     this.isTreeError = this.selectionHandlerService.getTreeError();
-     this.isButtonDisabled();
+      this.listTerritories = val;
+      this.isTreeError = this.selectionHandlerService.getTreeError();
+      this.isButtonDisabled();
     });
   }
 
 
-ngOnInit(){
- 
-}
+  isButtonDisabled() {
+    if (this.isSourceError || this.isThemeError || this.isProjectNameError || this.isTreeError) {
+      this.disableButton = true;
+    } else {
+      this.disableButton = false;
+    }
+  }
 
-isButtonDisabled(){
-  !this.isSourceError && !this.isThemeError && !this.isProjectNameError && !this.isTreeError ?
-   this.disableButton = false : this.disableButton = true;
-}
-  export() {
+  export () {
+
+    console.log(this.listTerritories);
     const obj = {
-      project_code : this.projectName,
-      territories : this.listTerritories.map(elm => elm.pcode),
-      themes : this.listThemeSelected.map(elm => elm.name),
-      sources : this.listSourceSelected.map(elm => elm.name)
+      project_code: this.projectName,
+      territories: this.listTerritories.map(elm => elm.pcode),
+      themes: this.listThemeSelected.map(elm => elm.name),
+      sources: this.listSourceSelected.map(elm => elm.name)
     };
     this.exportDocument(JSON.stringify(obj));
   }

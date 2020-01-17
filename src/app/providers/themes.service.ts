@@ -12,11 +12,7 @@ export class Theme {
   providedIn: 'root'
 })
 export class ThemesService {
-  constructor(private http: HttpClient) { }
-  hashMatrixAdm = new Map<number, Map<string, string>>(); // key level value hashmap of admin level
-  hashDepartement = new Map<string, string>(); // key name value id (retrieve and id from a name)
-  hashEpci = new Map<string, string>(); // key name value id (retrieve and id from a name)
-  hashCommune = new Map<string, string>(); // key name value id (retrieve and id from a name) 
+  constructor(private http: HttpClient) {}
   serviceBaseUrl = '/themes/';
 
   get() {

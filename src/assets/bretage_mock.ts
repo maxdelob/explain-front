@@ -1,11 +1,23 @@
 import {  Territoire  } from '../app/interfaces/territoire';
   
+  const fakeCommun: Territoire = {
+  id: '0001',
+  name: "villepreux",
+  level: 3,
+  children: [],
+  isToggled: true,
+  isExpended: false,
+  pcode: "FREPCI200067460",
+  idLevel0: '43918',
+  idLevel1: '43919',
+  idLevel2: '43920'
+  }
 
-export const epci: Territoire = {
+ const epci: Territoire = {
   id: '43920',
   name: "CC Loudéac Communauté - Bretagne Centre",
   level: 2,
-  children: [],
+  children: [fakeCommun],
   isToggled: false,
   isExpended: false,
   pcode: "FREPCI200067460",
